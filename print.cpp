@@ -1,33 +1,33 @@
 #include <assert.h>
 #include <stdio.h>
 
-#include "work_file.h"
+#include "process_file.h"
 #include "print.h"
 
-void print_all_text (struct File* file)
+void print_all_text (struct Buffer* array)
 {
-    for (int i = 0; i < file -> size; i++)
+    for (int i = 0; i < array -> size; i++)
     {
-        if (file -> buffer[i] == '\0')
+        if (array -> buffer[i] == '\0')
         {
-            file -> buffer[i] = '\n';
+            array -> buffer[i] = '\n';
         }
     }
 
-    printf ("%s\n", file -> buffer);
+    printf ("%s\n", array -> buffer);
 }
 
-void print_text (struct File* file)
+void print_text (struct Lines* lines)
 {
-    for (int i = 0; i < file -> line_count; ++i)
+    for (int i = 0; i < lines -> line_count; ++i)
     {
-        printf ("%s \n", file -> text[i]);
+        printf ("%s \n", lines -> text[i]);
     }
 }
 
-void print (struct File* file)
+void print (struct Lines* lines)
 {
-    print_text (file);
+    print_text (lines);
 }
 
 void print_indentation ()

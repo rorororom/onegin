@@ -5,49 +5,49 @@
 #include <cctype>
 
 #include "sort.h"
-#include "work_file.h"
+#include "process_file.h"
 
-void sort_text (struct File* file)
+void sort_text (struct Lines* lines)
 {
-    assert (file -> text != NULL);
+    assert (lines -> text != NULL);
 
-    my_qsort(file, 0, file -> line_count - 1);
+    my_qsort (lines, 0, lines -> line_count - 1, compare_strings);
 }
 
-void sort_text_reverse (struct File* file)
+void sort_text_reverse (struct Lines* lines)
 {
-    assert (file -> text != NULL);
+    assert (lines -> text != NULL);
 
-    myQSort_reverse (file, 0, file -> line_count - 1);
+    my_qsort (lines, 0, lines -> line_count - 1, compare_strings_reverse);
 }
 
-void my_qsort(struct File *file, int left, int right)
+void my_qsort(struct Lines* lines, int left, int right, int (*compare)(const char*, const char*))
 {
-    assert (file != NULL);
-    assert (file -> text!= NULL);
+    assert (lines != NULL);
+    assert (lines -> text!= NULL);
     assert (left >= 0);
     assert (right >= 0);
 
     if (left < right)
     {
         int i = left, j = right;
-        char* pivot = file -> text[(right + left) / 2];
+        char* pivot = lines -> text[(right + left) / 2];
 
         while (i < j)
         {
-            while (compareStrings(file -> text[i], pivot) < 0)
+            while (compare(lines -> text[i], pivot) < 0)
             {
                 i++;
             }
-            while (compareStrings(file -> text[j], pivot) > 0)
+            while (compare(lines -> text[j], pivot) > 0)
             {
                 j--;
             }
             if (i < j)
             {
-                char* temp = file -> text[i];
-                file -> text[i] = file -> text[j];
-                file -> text[j] = temp;
+                char* temp = lines -> text[i];
+                lines -> text[i] = lines -> text[j];
+                lines -> text[j] = temp;
             }
 
             i++;
@@ -56,62 +56,17 @@ void my_qsort(struct File *file, int left, int right)
 
         if (left < j)
         {
-            my_qsort(file, left, j);
+            my_qsort(lines, left, j, compare);
         }
 
         if (i < right)
         {
-            my_qsort(file, i, right);
+            my_qsort(lines, i, right, compare);
         }
     }
 }
 
-void myQSort_reverse(struct File* file, int left, int right)
-{
-    assert (file != NULL);
-    assert (file->text != NULL);
-    assert (left >= 0);
-    assert (right >= 0);
-
-    if (left < right)
-    {
-        int i = left, j = right;
-        char* pivot = file -> text[(right + left) / 2];
-
-        while (i <= j)
-        {
-            while (compareStrings_reverse(file -> text[i], pivot) < 0) {
-                i++;
-            }
-            while (compareStrings_reverse(file -> text[j], pivot) > 0) {
-                j--;
-            }
-            if (i <= j)
-            {
-                char* temp = file -> text[i];
-                file->text[i] = file -> text[j];
-                file->text[j] = temp;
-                i++;
-                j--;
-            }
-            if (i < left && j > right)
-            {
-                break;
-            }
-        }
-
-        if (left < j)
-        {
-            myQSort_reverse(file, left, j);
-        }
-        if (i < right)
-        {
-            myQSort_reverse(file, i, right);
-        }
-    }
-}
-
-int compareStrings(const char* a, const char* b) {
+int compare_strings(const char* a, const char* b) {
     assert (a != NULL);
     assert (b != NULL);
 
@@ -140,7 +95,7 @@ int compareStrings(const char* a, const char* b) {
     return compare_letters (*str1, *str2);
 }
 
-int compareStrings_reverse (const char* a, const char* b)
+int compare_strings_reverse (const char* a, const char* b)
 {
     assert (a != NULL);
     assert (b != NULL);
