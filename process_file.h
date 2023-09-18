@@ -7,10 +7,6 @@ enum eroor {
 
 struct File{
     const char *filename;
-    char *buffer;
-    size_t size;
-    char **text;
-    size_t line_count;
 };
 
 struct Buffer {

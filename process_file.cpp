@@ -100,6 +100,6 @@ void process_file (struct Buffer* array, struct Lines* lines)
     line_count (array, lines);
 
     lines -> text = (char**)calloc (lines -> line_count, sizeof(char*));
-    fill_text_and_count_line (array, lines); 
+    fill_text_and_count_line (array, lines);
 }
 
