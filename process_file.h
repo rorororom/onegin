@@ -19,6 +19,11 @@ struct Lines {
     size_t line_count;
 };
 
+struct StringInfo {
+    char* pointer;     // Указатель на строку
+    size_t length;  // Длина строки
+};
+
 void line_count (struct Buffer* array, struct Lines* lines);
 int get_file_size (struct File* file, struct Buffer* array);
 void read_file_in_buffer (FILE *fp, struct Buffer* array);

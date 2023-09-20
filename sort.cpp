@@ -2,147 +2,146 @@
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
-#include <cctype>
+#include <ctype.h>
 
 #include "sort.h"
 #include "process_file.h"
 
-void sort_text (struct Lines* lines)
+void sort_text(struct Lines* lines, struct StringInfo* stringArray)
 {
-    assert (lines -> text != NULL);
+    assert(lines != NULL);
+    assert(lines->text != NULL);
+    assert(stringArray != NULL);
+    assert(lines->line_count >= 0);
 
-    my_qsort (lines, 0, lines -> line_count - 1, compare_strings);
+    my_qsort(lines, 0, lines->line_count - 1, compare_strings, stringArray);
 }
 
-void sort_text_reverse (struct Lines* lines)
+void sort_text_reverse(struct Lines* lines, struct StringInfo* stringArray)
 {
-    assert (lines -> text != NULL);
+    assert(lines != NULL);
+    assert(lines->text != NULL);
+    assert(stringArray != NULL);
+    assert(lines->line_count >= 0);
 
-    my_qsort (lines, 0, lines -> line_count - 1, compare_strings_reverse);
+    my_qsort(lines, 0, lines->line_count - 1, compare_strings_reverse, stringArray);
 }
 
-void my_qsort(struct Lines* lines, int left, int right, int (*compare)(const char*, const char*))
+void my_qsort(struct Lines* lines, int left, int right, int (*compare)(const void*, const void*), struct StringInfo* stringArray)
 {
-    assert (lines != NULL);
-    assert (lines -> text!= NULL);
-    assert (left >= 0);
-    assert (right >= 0);
+    FILE *log_file = fopen("my_log.txt", "w");
+    if (log_file == NULL) {
+        perror("Не удалось открыть файл((((");
+        return ERROR;
+    }
 
-    if (left < right)
+    fprintf(log_file, "Файл открыт)\n");
+
+    assert(lines != NULL);
+    assert(stringArray != NULL);
+    assert(left >= 0);
+    assert(right >= 0);
+    assert(left <= right);
+
+    if (left >= right)
     {
-        int i = left, j = right;
-        char* pivot = lines -> text[(right + left) / 2];
+        return;
+    }
 
-        while (i < j)
+    int i = left;
+    int j = right;
+    char* pivot = stringArray[(left + right) / 2].pointer;
+
+    while (i <= j)
+    {
+        while (compare(stringArray[i].pointer, pivot) < 0)
         {
-            while (compare(lines -> text[i], pivot) < 0)
-            {
-                i++;
-            }
-            while (compare(lines -> text[j], pivot) > 0)
-            {
-                j--;
-            }
-            if (i < j)
-            {
-                char* temp = lines -> text[i];
-                lines -> text[i] = lines -> text[j];
-                lines -> text[j] = temp;
-            }
-
+            i++;
+        }
+        while (compare(stringArray[j].pointer, pivot) > 0)
+        {
+            j--;
+        }
+        if (i <= j)
+        {
+            zamena(stringArray, i, j);
             i++;
             j--;
         }
-
-        if (left < j)
-        {
-            my_qsort(lines, left, j, compare);
-        }
-
-        if (i < right)
-        {
-            my_qsort(lines, i, right, compare);
-        }
-    }
-}
-
-int compare_strings(const char* a, const char* b) {
-    assert (a != NULL);
-    assert (b != NULL);
-
-    const char* str1 = (const char*)a;
-    const char* str2 = (const char*)b;
-
-    while (*str1 && *str2)
-    {
-        while (!(isalpha (*str1)))
-        {
-            str1++;
-        }
-
-        while (!(isalpha (*str2)))
-        {
-            str2++;
-        }
-
-        int cmp = compare_letters (*str1, *str2);
-        if (cmp != 0) return cmp;
-
-        str1++;
-        str2++;
     }
 
-    return compare_letters (*str1, *str2);
+    my_qsort(lines, left, j, compare, stringArray);
+    my_qsort(lines, i, right, compare, stringArray);
 }
 
-int compare_strings_reverse (const char* a, const char* b)
-{
-    assert (a != NULL);
-    assert (b != NULL);
 
-    const char* str1 = (const char*)a;
-    const char* str2 = (const char*)b;
+int compare_strings(const void *a, const void *b) {
+    assert(a != NULL);
+    assert(b != NULL);
 
-    const char* p1 = str1 + strlen (str1) - 1;
-    const char* p2 = str2 + strlen (str2) - 1;
+    const struct StringInfo *srt1 = (const struct StringInfo *)a;
+    const struct StringInfo *srt2 = (const struct StringInfo *)b;
 
-    while (p1 >= str1 && p2 >= str2)
+    int first = 0;
+    int second = 0;
+
+    while (true)
     {
-        while (!(isalpha (*p1)))
+        while ((srt1 -> pointer)[first] != '\0' && isalpha((srt1 -> pointer)[first]) == 0)
         {
-            p1--;
+            first++;
+        }
+        while ((srt2 -> pointer)[second] != '\0' && isalpha((srt2 -> pointer)[second]) == 0)
+        {
+            second++;
+        }
+        if (tolower((srt1 -> pointer)[first]) == tolower((srt2 -> pointer)[second]) && (srt2 -> pointer)[first] != '\0')
+        {
+            first++;
+            second++;
             continue;
         }
-        while (!(isalpha (*p2)))
-        {
-            p2--;
-            continue;
-        }
-        int cmp = compare_letters (*p1, *p2);
-        if (cmp != 0) return cmp;
-
-        p1--;
-        p2--;
+        break;
     }
 
-    return compare_letters (*p1, *p2);;
+    return tolower((srt1 -> pointer)[first]) - tolower((srt2 -> pointer)[second]);
 }
 
-int compare_letters (char ch1, char ch2)
-{
-    ch1 = tolower (ch1);
-    ch2 = tolower (ch2);
+int compare_strings_reverse(const void* a, const void* b) {
+    assert(a != NULL);
+    assert(b != NULL);
 
-    if (ch1 < ch2)
+    const struct StringInfo *srt1 = (const struct StringInfo *)a;
+    const struct StringInfo *srt2 = (const struct StringInfo *)b;
+
+    int first = (srt1 -> length) - 1;
+    int second = (srt2 -> length) - 1;
+
+    while (true)
     {
-        return -1;
+        while ((first >= 0) && isalpha((srt1 -> pointer)[first]) == 0)
+        {
+            first--;
+        }
+        while ((second >= 0) && isalpha((srt2 -> pointer)[second]) == 0)
+        {
+            second--;
+        }
+        if (tolower((srt1 -> pointer)[first]) == tolower((srt2 -> pointer)[second]) && (first >= 0))
+        {
+            first--;
+            second--;
+            continue;
+        }
+        break;
     }
-    else if (ch1 > ch2)
-    {
-        return 1;
-    }
-    else
-    {
-        return 0;
-    }
+
+    return tolower((srt1-> pointer)[first]) - tolower((srt2 -> pointer)[second]);
+}
+
+
+int zamena(struct StringInfo* stringArray, int left, int right) {
+    struct StringInfo temp = stringArray[left];
+    stringArray[left] = stringArray[right];
+    stringArray[right] = temp;
 }

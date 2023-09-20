@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <sys/stat.h>
+#include <string.h>
 
 #include "print.h"
 #include "sort.h"
@@ -94,6 +95,19 @@ void process_file (struct Buffer* array, struct Lines* lines)
 
     FILE *fp = fopen(file.filename, "rb");
 
+    StringInfo* stringArray = (struct StringInfo*)malloc(lines -> line_count * sizeof(StringInfo));
+
+    if (stringArray == NULL)
+    {
+        perror("Ошибка выделения памяти для stringArray");
+    }
+
+    for (size_t i = 0; i < lines->line_count; i++)
+    {
+        stringArray[i].pointer = lines->text[i];
+        stringArray[i].length = strlen(lines->text[i]);
+    }
+
     get_file_size (&file, array);
     array -> buffer = (char*)calloc(array -> size + 1, sizeof(char));
     read_file_in_buffer (fp, array);
@@ -101,5 +115,8 @@ void process_file (struct Buffer* array, struct Lines* lines)
 
     lines -> text = (char**)calloc (lines -> line_count, sizeof(char*));
     fill_text_and_count_line (array, lines);
+
+    sort_text(lines, stringArray);
+    //sort_text_reverse(lines, stringArray);
 }
 

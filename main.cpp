@@ -18,11 +18,9 @@ int main ()
 
     process_file (&array, &lines);
 
-    sort_text (&lines);
     print (&lines);
     print_indentation ();
 
-    sort_text_reverse (&lines);
     print (&lines);
 
     print_indentation ();

@@ -1,13 +1,14 @@
 #ifndef SORT_H
 #define SORT_H
 
-void sort_text (struct Lines* lines);
-void sort_text_reverse (struct Lines* lines);
+void sort_text(struct Lines* lines, struct StringInfo* stringArray);
+void sort_text_reverse(struct Lines* lines, struct StringInfo* stringArray);
 
-void my_qsort(struct Lines* lines, int left, int right, int (*compare)(const char*, const char*));
+void my_qsort(struct Lines* lines, int left, int right, int (*compare)(const void*, const void*), struct StringInfo* stringArray);
 
-int compare_strings_reverse (const char* a, const char* b);
-int compare_strings(const char* a, const char* b);
-int compare_letters (char ch1, char ch2);
+int compare_strings(const void* a, const void* b);
+int compare_strings_reverse(const void* a, const void* b);
+
+int zamena (struct StringInfo* stringArray, int left, int right);
 
 #endif // SORT_H
