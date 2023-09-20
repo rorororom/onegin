@@ -29,14 +29,6 @@ void sort_text_reverse(struct Lines* lines, struct StringInfo* stringArray)
 
 void my_qsort(struct Lines* lines, int left, int right, int (*compare)(const void*, const void*), struct StringInfo* stringArray)
 {
-    FILE *log_file = fopen("my_log.txt", "w");
-    if (log_file == NULL) {
-        perror("Не удалось открыть файл((((");
-        return ERROR;
-    }
-
-    fprintf(log_file, "Файл открыт)\n");
-
     assert(lines != NULL);
     assert(stringArray != NULL);
     assert(left >= 0);
@@ -47,16 +39,21 @@ void my_qsort(struct Lines* lines, int left, int right, int (*compare)(const voi
     {
         return;
     }
+    printf ("first - %d, second - %d\n", left, right);
+
 
     int i = left;
     int j = right;
     char* pivot = stringArray[(left + right) / 2].pointer;
+    printf ("first - %d, second - %d\n", i, j);
 
     while (i <= j)
     {
+        printf ("first - %d, second - %d\n", i, j);
         while (compare(stringArray[i].pointer, pivot) < 0)
         {
             i++;
+            printf ("i - %d, j - %d\n", i, j);
         }
         while (compare(stringArray[j].pointer, pivot) > 0)
         {
@@ -85,10 +82,13 @@ int compare_strings(const void *a, const void *b) {
     int first = 0;
     int second = 0;
 
+    printf ("first - %d, second - %d, str1 - %s, str2 - %s\n", first, second, srt1 -> pointer, srt2 -> pointer);
+
     while (true)
     {
         while ((srt1 -> pointer)[first] != '\0' && isalpha((srt1 -> pointer)[first]) == 0)
         {
+            printf ("first - %d, second - %d, str1 - %s, str2 - %s\n", first, second, srt1 -> pointer, srt2 -> pointer);
             first++;
         }
         while ((srt2 -> pointer)[second] != '\0' && isalpha((srt2 -> pointer)[second]) == 0)
