@@ -6,6 +6,7 @@
 
 int main ()
 {
+    setbuf (stdout, NULL);
     Lines lines = {
         NULL,
         0,
@@ -17,14 +18,6 @@ int main ()
     };
 
     process_file (&array, &lines);
-
-    print (&lines);
-    print_indentation ();
-
-    print (&lines);
-
-    print_indentation ();
-    print_all_text (&array);
 
     free_buffer (&array, &lines);
 }

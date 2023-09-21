@@ -31,6 +31,8 @@ int get_file_size (struct File* file, struct Buffer* array)
     }
 
     array -> size = st.st_size;
+
+    return st.st_size;
 }
 
 void read_file_in_buffer (FILE *fp, struct Buffer* array)
@@ -87,6 +89,23 @@ FILE* open_file(const char* filename, const char* mode)
     return fp;
 }
 
+StringInfo *creat_string (struct Lines* lines)
+{
+
+    StringInfo *stringArray = (StringInfo *)calloc(lines->line_count, sizeof(StringInfo));
+    if (stringArray == NULL)
+    {
+        perror("Ошибка выделения памяти для stringArray");
+    }
+    for (int i = 0; i < lines->line_count; i++)
+    {
+        stringArray[i].pointer = lines->text[i];
+        stringArray[i].length = strlen(lines->text[i]);
+    }
+    return stringArray;
+}
+
+
 void process_file (struct Buffer* array, struct Lines* lines)
 {
     File file = {
@@ -95,28 +114,45 @@ void process_file (struct Buffer* array, struct Lines* lines)
 
     FILE *fp = fopen(file.filename, "rb");
 
-    StringInfo* stringArray = (struct StringInfo*)malloc(lines -> line_count * sizeof(StringInfo));
-
-    if (stringArray == NULL)
-    {
-        perror("Ошибка выделения памяти для stringArray");
-    }
-
-    for (size_t i = 0; i < lines->line_count; i++)
-    {
-        stringArray[i].pointer = lines->text[i];
-        stringArray[i].length = strlen(lines->text[i]);
-    }
-
     get_file_size (&file, array);
     array -> buffer = (char*)calloc(array -> size + 1, sizeof(char));
+
     read_file_in_buffer (fp, array);
     line_count (array, lines);
-
     lines -> text = (char**)calloc (lines -> line_count, sizeof(char*));
     fill_text_and_count_line (array, lines);
 
+    fclose(fp);
+
+    size_t i = 0;
+
+    StringInfo *stringArray  = creat_string (lines);
+    StringInfo *buf = creat_string (lines);
+
+    File file_output = {
+        "output_sort.txt",
+    };
+    fp = fopen(file_output.filename, "w");
+    print_text (lines, buf, fp);
+    fclose (fp);
+
+
     sort_text(lines, stringArray);
-    //sort_text_reverse(lines, stringArray);
+    File file_output_sort = {
+        "output_sort.txt",
+    };
+    fp = fopen(file_output_sort.filename, "w");
+    print_text (lines, stringArray, fp);
+    fclose (fp);
+
+    printf ("%lu\n", lines -> line_count);
+
+    sort_text_reverse(lines, stringArray);
+    File file_output_sort_reverse = {
+        "output_sort_reverse.txt",
+    };
+    fp = fopen(file_output_sort_reverse.filename, "w");
+    print_text (lines, stringArray, fp);
+    fclose (fp);
 }
 

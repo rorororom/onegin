@@ -14,7 +14,7 @@ void sort_text(struct Lines* lines, struct StringInfo* stringArray)
     assert(stringArray != NULL);
     assert(lines->line_count >= 0);
 
-    my_qsort(lines, 0, lines->line_count - 1, compare_strings, stringArray);
+    my_qsort(0, lines->line_count - 1, compare_strings, stringArray);
 }
 
 void sort_text_reverse(struct Lines* lines, struct StringInfo* stringArray)
@@ -24,12 +24,15 @@ void sort_text_reverse(struct Lines* lines, struct StringInfo* stringArray)
     assert(stringArray != NULL);
     assert(lines->line_count >= 0);
 
-    my_qsort(lines, 0, lines->line_count - 1, compare_strings_reverse, stringArray);
+    my_qsort(0, lines->line_count - 1, compare_strings_reverse, stringArray);
 }
 
-void my_qsort(struct Lines* lines, int left, int right, int (*compare)(const void*, const void*), struct StringInfo* stringArray)
+void my_qsort(int left, int right, int (*compare)(const void*, const void*), struct StringInfo* stringArray)
 {
-    assert(lines != NULL);
+    if (right - left <= 0)
+    {
+        return;
+    }
     assert(stringArray != NULL);
     assert(left >= 0);
     assert(right >= 0);
@@ -39,23 +42,19 @@ void my_qsort(struct Lines* lines, int left, int right, int (*compare)(const voi
     {
         return;
     }
-    printf ("first - %d, second - %d\n", left, right);
 
 
     int i = left;
     int j = right;
-    char* pivot = stringArray[(left + right) / 2].pointer;
-    printf ("first - %d, second - %d\n", i, j);
+    StringInfo pivot = stringArray[(left + right) / 2];
 
-    while (i <= j)
+    while (i < j)
     {
-        printf ("first - %d, second - %d\n", i, j);
-        while (compare(stringArray[i].pointer, pivot) < 0)
+        while (i < right && compare(&stringArray[i], &pivot) < 0)
         {
             i++;
-            printf ("i - %d, j - %d\n", i, j);
         }
-        while (compare(stringArray[j].pointer, pivot) > 0)
+        while (j >= 0 && compare(&stringArray[j], &pivot) > 0)
         {
             j--;
         }
@@ -67,8 +66,9 @@ void my_qsort(struct Lines* lines, int left, int right, int (*compare)(const voi
         }
     }
 
-    my_qsort(lines, left, j, compare, stringArray);
-    my_qsort(lines, i, right, compare, stringArray);
+
+    my_qsort(left, j, compare, stringArray);
+    my_qsort(i, right, compare, stringArray);
 }
 
 
@@ -82,13 +82,10 @@ int compare_strings(const void *a, const void *b) {
     int first = 0;
     int second = 0;
 
-    printf ("first - %d, second - %d, str1 - %s, str2 - %s\n", first, second, srt1 -> pointer, srt2 -> pointer);
-
     while (true)
     {
         while ((srt1 -> pointer)[first] != '\0' && isalpha((srt1 -> pointer)[first]) == 0)
         {
-            printf ("first - %d, second - %d, str1 - %s, str2 - %s\n", first, second, srt1 -> pointer, srt2 -> pointer);
             first++;
         }
         while ((srt2 -> pointer)[second] != '\0' && isalpha((srt2 -> pointer)[second]) == 0)
@@ -144,4 +141,6 @@ int zamena(struct StringInfo* stringArray, int left, int right) {
     struct StringInfo temp = stringArray[left];
     stringArray[left] = stringArray[right];
     stringArray[right] = temp;
+
+    return 0;
 }
