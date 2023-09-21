@@ -10,6 +10,7 @@ int main (int argc, char* argv[])
         printf("Использование: %s <имя_файла>\n", argv[0]);
         return ERROR;
     }
+    //
 
     const char *filename = argv[1];
 
