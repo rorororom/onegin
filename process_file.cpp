@@ -89,6 +89,19 @@ FILE* open_file(const char* filename, const char* mode)
     return fp;
 }
 
+void print_text_to_output(const char *outputFilename, struct Lines *lines, StringInfo *stringArray)
+{
+    FILE *outputFile = fopen(outputFilename, "w");
+    if (outputFile == NULL) {
+        fprintf(stderr, "Ошибка: не удалось открыть файл для записи\n");
+        exit(EXIT_FAILURE);
+    }
+
+    print_text (lines, stringArray, outputFile);
+    fclose (outputFile);
+}
+
+
 StringInfo *creat_string (struct Lines* lines)
 {
 
@@ -105,6 +118,27 @@ StringInfo *creat_string (struct Lines* lines)
     return stringArray;
 }
 
+void process_sort_and_print(struct Lines *lines, StringInfo *stringArray)
+{
+    File file_output = {
+        "output_sort.txt",
+    };
+    print_text_to_output(file_output.filename, lines, stringArray);
+
+    sort_text(lines, stringArray);
+    File file_output_sort = {
+        "output_sort.txt",
+    };
+    print_text_to_output(file_output_sort.filename, lines, stringArray);
+
+    printf ("%lu\n", lines -> line_count);
+
+    sort_text_reverse(lines, stringArray);
+    File file_output_sort_reverse = {
+        "output_sort_reverse.txt",
+    };
+    print_text_to_output(file_output_sort_reverse.filename, lines, stringArray);
+}
 
 void process_file (struct Buffer* array, struct Lines* lines)
 {
@@ -129,31 +163,6 @@ void process_file (struct Buffer* array, struct Lines* lines)
     StringInfo *stringArray  = creat_string (lines);
     StringInfo *buf = creat_string (lines);
 
-    File file_output = {
-        "output_sort.txt",
-    };
-    fp = fopen(file_output.filename, "w");
-    print_text (lines, buf, fp);
-    fclose (fp);
-
-
-    sort_text(lines, stringArray);
-    File file_output_sort = {
-        "output_sort.txt",
-    };
-    fp = fopen(file_output_sort.filename, "w");
-    print_text (lines, stringArray, fp);
-    fclose (fp);
-
-    printf ("%lu\n", lines -> line_count);
-
-    sort_text_reverse(lines, stringArray);
-    File file_output_sort_reverse = {
-        "output_sort_reverse.txt",
-    };
-    fp = fopen(file_output_sort_reverse.filename, "w");
-    print_text (lines, stringArray, fp);
-    
-    fclose (fp);
+    process_sort_and_print(lines, stringArray);
 }
 
