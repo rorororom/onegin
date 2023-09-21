@@ -131,8 +131,6 @@ void process_sort_and_print(struct Lines *lines, StringInfo *stringArray)
     };
     print_text_to_output(file_output_sort.filename, lines, stringArray);
 
-    printf ("%lu\n", lines -> line_count);
-
     sort_text_reverse(lines, stringArray);
     File file_output_sort_reverse = {
         "output_sort_reverse.txt",
@@ -140,10 +138,10 @@ void process_sort_and_print(struct Lines *lines, StringInfo *stringArray)
     print_text_to_output(file_output_sort_reverse.filename, lines, stringArray);
 }
 
-void process_file (struct Buffer* array, struct Lines* lines)
+void process_file (struct Buffer* array, struct Lines* lines, const char* filename)
 {
     File file = {
-        "Onegin.txt",
+        filename,
     };
 
     FILE *fp = fopen(file.filename, "rb");
