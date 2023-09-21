@@ -153,6 +153,7 @@ void process_file (struct Buffer* array, struct Lines* lines)
     };
     fp = fopen(file_output_sort_reverse.filename, "w");
     print_text (lines, stringArray, fp);
+    
     fclose (fp);
 }
 
