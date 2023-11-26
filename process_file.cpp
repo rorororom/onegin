@@ -18,7 +18,7 @@ void line_count (struct Buffer* array, struct Lines* lines)
     }
 }
 
-int get_file_size (struct File* file, struct Buffer* array)
+void get_file_size (struct File* file, struct Buffer* array)
 {
     assert (file != NULL);
 
@@ -31,8 +31,6 @@ int get_file_size (struct File* file, struct Buffer* array)
     }
 
     array -> size = st.st_size;
-
-    return st.st_size;
 }
 
 void read_file_in_buffer (FILE *fp, struct Buffer* array)
@@ -45,6 +43,7 @@ void read_file_in_buffer (FILE *fp, struct Buffer* array)
 
     fclose (fp);
 }
+
 
 void fill_text_and_count_line (struct Buffer* array, struct Lines* lines)
 {
@@ -163,4 +162,5 @@ void process_file (struct Buffer* array, struct Lines* lines, const char* filena
 
     process_sort_and_print(lines, stringArray);
 }
+
 

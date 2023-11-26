@@ -5,69 +5,72 @@
 
 #include "color.h"
 
-void qSort (int data[], int left, int right, int len);
-int partition (int data[], int left, int right, int len );
-void swap (int data[], int a, int b);
-void print_data (int data[], int mid, int left, int right, int len);
-void print_pointer (int data[], int mid, int left, int right);
+void qSort(void *data, int left, int right, int len, int (*compare)(const void *, const void *));
+int partition(void *data, int left, int right, int len, int (*compare)(const void *, const void *));
+void swap(void *data, int a, int b, int size);
+void print_data(void *data, int mid, int left, int right, int len, int size, int (*compare)(const void *, const void *));
+void print_pointer(void *data, int mid, int left, int right, int size);
 
-int main ()
+int compare_int(const void *a, const void *b);
+
+int main()
 {
     int data[] = {4, 18, 9, 0, 90, 8, 15, 88, 9, 7, 18, 1, 22};
-    int len = sizeof (data) / sizeof (data[0]);
+    int len = sizeof(data) / sizeof(data[0]);
     int left = 0;
     int right = len - 1;
 
-    qSort (data, left, right, len);
+    qSort(data, left, right, len, compare_int);
 
     for (int i = 0; i < len; i++)
-        printf (" %d ", data[i]);
+        printf(" %d ", data[i]);
 }
 
-void qSort (int data[], int left, int right, int len)
+void qSort(void *data, int left, int right, int len, int (*compare)(const void *, const void *))
 {
-    assert (data != NULL);
-    assert (isfinite (left));
-    assert (isfinite (right));
+    assert(data != NULL);
+    assert(isfinite(left));
+    assert(isfinite(right));
 
     if (left < right)
     {
-        int mid = partition(data, left, right, len);
+        int mid = partition(data, left, right, len, compare);
 
-        qSort(data, left, mid, len);
-        qSort(data, mid + 1, right, len);
+        qSort(data, left, mid, len, compare);
+        qSort(data, mid + 1, right, len, compare);
     }
 }
 
-int partition(int data[], int left, int right, int len)
+int partition(void *data, int left, int right, int len, int (*compare)(const void *, const void *))
 {
-    assert (data != NULL);
-    assert (isfinite (left));
-    assert (isfinite (right));
+    assert(data != NULL);
+    assert(isfinite(left));
+    assert(isfinite(right));
 
+    int size = sizeof(int); // Размер элемента данных (в данном случае int)
     int mid = (left + right) / 2;
-    int sup_element = data[mid];
+    void *sup_element = (char *)data + mid * size;
 
     while (1)
     {
-        while (data[left] < sup_element)
+        while (compare(data + left * size, sup_element) < 0)
         {
-            print_pointer (data, mid, left, right);
+            print_pointer(data, mid, left, right, size);
 
             left++;
 
-            print_pointer (data, mid, left, right);
-            print_data (data, mid, left, right, len);
+            print_pointer(data, mid, left, right, size);
+            print_data(data, mid, left, right, len, size, compare);
         }
 
-        while (data[right] > sup_element)
+        while (compare(data + right * size, sup_element) > 0)
         {
-            print_pointer (data, mid, left, right);
+            print_pointer(data, mid, left, right, size);
 
             right--;
 
-            print_pointer (data, mid, left, right);
-            print_data (data, mid, left, right, len);
+            print_pointer(data, mid, left, right, size);
+            print_data(data, mid, left, right, len, size, compare);
         }
 
         if (left >= right)
@@ -75,13 +78,13 @@ int partition(int data[], int left, int right, int len)
             return right;
         }
 
-        print_pointer (data, mid, left, right);
-        print_data (data, mid, left, right, len);
+        print_pointer(data, mid, left, right, size);
+        print_data(data, mid, left, right, len, size, compare);
 
-        swap(data, left, right);
+        swap(data, left, right, size);
 
-        print_pointer (data, mid, left, right);
-        print_data (data, mid, left, right, len);
+        print_pointer(data, mid, left, right, size);
+        print_data(data, mid, left, right, len, size, compare);
 
         left++;
         right--;
@@ -90,48 +93,67 @@ int partition(int data[], int left, int right, int len)
     return right;
 }
 
-
-void swap (int data[], int a, int b)
+void swap(void *data, int a, int b, int size)
 {
-    assert (data != NULL);
-    assert (isfinite (a));
-    assert (isfinite (b));
+    assert(data != NULL);
+    assert(isfinite(a));
+    assert(isfinite(b));
 
-    int temp = data[a];
-    data[a] = data[b];
-    data[b] = temp;
+    char temp[size];
+    memcpy(temp, (char *)data + a * size, size);
+    memcpy((char *)data + a * size, (char *)data + b * size, size);
+    memcpy((char *)data + b * size, temp, size);
 }
 
-void print_data (int data[], int mid, int left, int right, int len)
+void print_data(void *data, int mid, int left, int right, int len, int size, int (*compare)(const void *, const void *))
 {
-    assert (data != NULL);
-    assert (isfinite (left));
-    assert (isfinite (right));
-    assert (isfinite (mid));
+    assert(data != NULL);
+    assert(isfinite(left));
+    assert(isfinite(right));
+    assert(isfinite(mid));
 
     for (int i = 0; i < len; i++)
     {
-        if (i == mid) printf (" %d ", data[i]);
-        else if (i == left) printf (COLOR_RED (" %d "), data[i]);
-        else if (i == right) printf (COLOR_RED (" %d "), data[i]);
-        else if (i < mid) printf (COLOR_YELLOW (" %d "), data[i]);
-        else printf (COLOR_BLUE (" %d "), data[i]);
+        if (i == mid)
+            printf(" %d ", *(int *)((char *)data + i * size));
+        else if (i == left)
+            printf(COLOR_RED(" %d "), *(int *)((char *)data + i * size));
+        else if (i == right)
+            printf(COLOR_RED(" %d "), *(int *)((char *)data + i * size));
+        else if (i < mid)
+            printf(COLOR_YELLOW(" %d "), *(int *)((char *)data + i * size));
+        else
+            printf(COLOR_BLUE(" %d "), *(int *)((char *)data + i * size));
     }
 
-    printf ("\n");
+    printf("\n");
 }
 
-void print_pointer (int data[], int mid, int left, int right)
+void print_pointer(void *data, int mid, int left, int right, int size)
 {
-    assert (data != NULL);
-    assert (isfinite (left));
-    assert (isfinite (right));
-    assert (isfinite (mid));
+    assert(data != NULL);
+    assert(isfinite(left));
+    assert(isfinite(right));
+    assert(isfinite(mid));
 
-    printf ("\n");
-    printf ("левый указатель на номере %d, значание - %d\n", left, data[left]);
-    printf ("опорный элемент на номере %d, значание - %d\n", mid, data[mid]);
-    printf ("правый указатель на номере %d, значание - %d\n", right, data[right]);
-    printf ("\n");
+    printf("\n");
+    printf("левый указатель на номере %d, значение - %d\n", left, *(int    *) ((char *)data + left * size));
+    printf("опорный элемент на номере %d, значение - %d\n", mid, *(int *)((char *)data + mid * size));
+    printf("правый указатель на номере %d, значение - %d\n", right, *(int *)((char *)data + right * size));
+    printf("\n");
 }
+
+int compare_int(const void *a, const void *b)
+{
+    int int_a = *((int *)a);
+    int int_b = *((int *)b);
+
+    if (int_a == int_b)
+        return 0;
+    else if (int_a < int_b)
+        return -1;
+    else
+        return 1;
+}
+
 
